@@ -3,7 +3,7 @@
 ### dataset structure : 
 
 ```
-/project 
+/students_attendance/ 
    |----dataset/
            |------students/
                        |------facenet_dataset/
