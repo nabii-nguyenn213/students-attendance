@@ -1,0 +1,2 @@
+- This folder will store student's images that attended to the class. 
+- It'll automatically create new sub-folder base on current date, students' id then add the student's image to the sub-folder.
