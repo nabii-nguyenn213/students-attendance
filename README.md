@@ -41,3 +41,5 @@
                        |------MSSV30/
                                 |--------.jpg, .png, .jpeg
 ```
+
+> `train/` , `test/` and `val/` folders will be automatically generated when running `Augmentation_dataset.py` file.
