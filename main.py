@@ -1,4 +1,8 @@
 import cv2
+import os
+from datetime import datetime
+import time
+import csv
 import numpy as np
 import onnxruntime as ort
 from ultralytics import YOLO
@@ -108,14 +112,99 @@ class Student_Attendance:
         self.anti_spoof = Anti_Spoofing(model_path="models", threshold=0.45)
         self.student_classification = Student_Classification(model_path="models")
         
-    def save_attendance(self):
-        pass
+    def save_student_image(self, student_id, image, base_folder="Student_Attendance_Image"):
+        # Get current date in YYYY-MM-DD format
+        current_date = datetime.now().strftime("%Y-%m-%d")
+
+        # Define folder paths
+        date_folder = os.path.join(base_folder, current_date)
+        student_folder = os.path.join(date_folder, str(student_id))
+
+        # Create necessary directories if they don't exist
+        os.makedirs(student_folder, exist_ok=True)
+
+        # Define image filename (timestamp to prevent overwriting)
+        timestamp = datetime.now().strftime("%H-%M-%S")
+        image_path = os.path.join(student_folder, f"{timestamp}.jpg")
+
+        # Save the image
+        cv2.imwrite(image_path, image)
+
+        # print(f"Image saved at: {image_path}")
+        
+        return image_path  # Return the image path for logging
+    
+    # def save_attendance(self, frame, filename = "students.csv"):
+    #     student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
+    #     columns = ["Student ID", "Date", "Time", "Image_Path", "Confidence"]
+    #     current_date = datetime.now().strftime("%Y-%m-%d")
+    #     current_time = time.localtime()  # Lấy thời gian hiện tại dưới dạng struct_time
+    #     current_time = time.strftime("%H:%M:%S", current_time)  # Định dạng thành chuỗi
+
+    #     file_exists = os.path.exists(filename)
+        
+    #     # Check if Student ID already exists for today
+    #     if file_exists:
+    #         df = pd.read_csv(filename)
+    #         if ((df["Student ID"] == self.student_id) & (df["Date"] == current_date)).any():
+    #             print(f"Student {self.student_id} already recorded today. Skipping.")
+    #             return
+        
+    #     with open(filename, mode="a", newline="") as file:
+    #         writer = csv.writer(file)
+            
+    #         # Write header if file is newly created
+    #         if not file_exists:
+    #             writer.writerow(columns)
+                
+    #         if self.confidence > 80.:
+    #             writer.writerow([self.student_id, current_date, current_time, student_image_path, self.conf])    
+    #             print(f"SUCCESSFULLY SAVE TO {filename}")
+    
+    def save_attendance(self, frame, filename="students.csv"):
+        student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
+        
+        columns = ["Student ID", "Date", "Time", "Image_Path", "Confidence"]
+        current_date = datetime.now().strftime("%Y-%m-%d")
+        current_time = time.strftime("%H:%M:%S", time.localtime())  # Lấy thời gian hiện tại dạng chuỗi
+
+        file_exists = os.path.exists(filename)
+
+        # Nếu file tồn tại nhưng trống, ghi header vào trước khi đọc
+        if file_exists and os.stat(filename).st_size == 0:
+            with open(filename, mode="w", newline="") as file:
+                writer = csv.writer(file)
+                writer.writerow(columns)  # Viết header
+
+        # Kiểm tra Student ID có trong file không (tránh lỗi EmptyDataError)
+        if file_exists:
+            try:
+                df = pd.read_csv(filename)
+                if ((df["Student ID"] == self.student_id) & (df["Date"] == current_date)).any():
+                    print(f"⚠️ Student {self.student_id} đã được ghi nhận hôm nay. Bỏ qua.")
+                    return
+            except pd.errors.EmptyDataError:
+                print("File CSV rỗng, sẽ ghi lại header.")
+
+        # Mở file và ghi dữ liệu mới
+        with open(filename, mode="a", newline="") as file:
+            writer = csv.writer(file)
+
+            # Nếu file mới tạo, ghi header
+            if not file_exists:
+                writer.writerow(columns)
+
+            # Chỉ lưu nếu confidence > 80
+            if self.confidence > 80.:
+                writer.writerow([self.student_id, current_date, current_time, student_image_path, self.confidence])    
+                print(f"Đã lưu thành công vào {filename}")
+    
 
     def run(self):
         number_of_frame_check_spoof = 10
         # number_of_frame_check_spoof variable is used to verify 120 frames all REAL then continued to classifier
         
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
 
         current_number_of_frames_check_spoof = 0
         
@@ -140,12 +229,13 @@ class Student_Attendance:
                 cv2.putText(frame, "SPOOF DETECTED", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
 
             if current_number_of_frames_check_spoof > number_of_frame_check_spoof:
-                student_pred = self.student_classification.predict(frame=frame)[1]
+                self.student_id = self.student_classification.predict(frame=frame)[1]
                 self.confidence = self.student_classification.get_conf()
 
-                print(f"STUDENT ID : {student_pred}")
+                print(f"STUDENT ID : {self.student_id}")
                 print(f"CONFIDENCE : {self.confidence}")
                 current_number_of_frames_check_spoof = 0
+                self.save_attendance(frame=frame, filename="students.csv")
                 
             cv2.imshow("Student Attendance", frame)
             if cv2.waitKey(1) & 0xFF==ord('q'):
