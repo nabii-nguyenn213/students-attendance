@@ -134,33 +134,6 @@ class Student_Attendance:
         
         return image_path  # Return the image path for logging
     
-    # def save_attendance(self, frame, filename = "students.csv"):
-    #     student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
-    #     columns = ["Student ID", "Date", "Time", "Image_Path", "Confidence"]
-    #     current_date = datetime.now().strftime("%Y-%m-%d")
-    #     current_time = time.localtime()  # Lấy thời gian hiện tại dưới dạng struct_time
-    #     current_time = time.strftime("%H:%M:%S", current_time)  # Định dạng thành chuỗi
-
-    #     file_exists = os.path.exists(filename)
-        
-    #     # Check if Student ID already exists for today
-    #     if file_exists:
-    #         df = pd.read_csv(filename)
-    #         if ((df["Student ID"] == self.student_id) & (df["Date"] == current_date)).any():
-    #             print(f"Student {self.student_id} already recorded today. Skipping.")
-    #             return
-        
-    #     with open(filename, mode="a", newline="") as file:
-    #         writer = csv.writer(file)
-            
-    #         # Write header if file is newly created
-    #         if not file_exists:
-    #             writer.writerow(columns)
-                
-    #         if self.confidence > 80.:
-    #             writer.writerow([self.student_id, current_date, current_time, student_image_path, self.conf])    
-    #             print(f"SUCCESSFULLY SAVE TO {filename}")
-    
     def save_attendance(self, frame, filename="students.csv"):
         student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
         
