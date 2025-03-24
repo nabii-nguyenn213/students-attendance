@@ -135,8 +135,6 @@ class Student_Attendance:
         return image_path  # Return the image path for logging
     
     def save_attendance(self, frame, filename="students.csv"):
-        student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
-        
         columns = ["Student ID", "Date", "Time", "Image_Path", "Confidence"]
         current_date = datetime.now().strftime("%Y-%m-%d")
         current_time = time.strftime("%H:%M:%S", time.localtime())  # Lấy thời gian hiện tại dạng chuỗi
@@ -158,6 +156,7 @@ class Student_Attendance:
                     return
             except pd.errors.EmptyDataError:
                 print("File CSV rỗng, sẽ ghi lại header.")
+        student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
 
         # Mở file và ghi dữ liệu mới
         with open(filename, mode="a", newline="") as file:
@@ -173,14 +172,15 @@ class Student_Attendance:
                 print(f"Đã lưu thành công vào {filename}")
     
 
-    def run(self):
+    def run(self, show_fps = False):
         number_of_frame_check_spoof = 10
         # number_of_frame_check_spoof variable is used to verify 120 frames all REAL then continued to classifier
         
         cap = cv2.VideoCapture(0)
+        cap.set(cv2.CAP_PROP_FPS, 60)  # Thử đặt 60 FPS
 
         current_number_of_frames_check_spoof = 0
-        
+        prev_time = 0
         while cap.isOpened():
             ret, frame = cap.read()
 
@@ -210,6 +210,14 @@ class Student_Attendance:
                 current_number_of_frames_check_spoof = 0
                 self.save_attendance(frame=frame, filename="students.csv")
                 
+            if show_fps:
+                curr_time = time.time()
+                fps = 1 / (curr_time - prev_time)
+                prev_time = curr_time
+                cv2.putText(frame, f'FPS: {int(fps)}', (480, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3, cv2.LINE_AA)
+
+                
+            
             cv2.imshow("Student Attendance", frame)
             if cv2.waitKey(1) & 0xFF==ord('q'):
                 break
@@ -217,4 +225,4 @@ class Student_Attendance:
                 
 if __name__ == "__main__":
     student_attendance = Student_Attendance()
-    student_attendance.run()
+    student_attendance.run(show_fps=True)
