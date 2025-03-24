@@ -28,6 +28,7 @@ class Anti_Spoofing:
         '''
         resize the frame to fit the anti-spoof model.
         '''
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.resize(frame, (128, 128))
         frame = np.transpose(frame, (2, 0, 1)).astype(np.float32)/255.0
         frame = np.expand_dims(frame, axis = 0)
@@ -53,6 +54,8 @@ class Anti_Spoofing:
         # Display result
         if is_real == True and phone_detected == False:
             return True
+        if phone_detected:
+            print("Phone detected")
         return False 
 
     def get_conf(self):
@@ -98,7 +101,7 @@ class Student_Classification:
 
                         self.conf = self.classifier.predict_proba(embedding)
                         self.conf = np.max(self.conf) * 100
-
+                        print(f"PREDICT LABEL : {pred_label} | PREDICT STUDENT : {pred_student}")
                         return pred_label, pred_student
                     except Exception as e:
                         print("Error:", e)
@@ -108,9 +111,10 @@ class Student_Classification:
 
 class Student_Attendance:
 
-    def __init__(self):
-        self.anti_spoof = Anti_Spoofing(model_path="models", threshold=0.45)
+    def __init__(self, threshold):
+        self.anti_spoof = Anti_Spoofing(model_path="models", threshold=threshold)
         self.student_classification = Student_Classification(model_path="models")
+        self.attended = None
         
     def save_student_image(self, student_id, image, base_folder="Student_Attendance_Image"):
         # Get current date in YYYY-MM-DD format
@@ -140,7 +144,6 @@ class Student_Attendance:
         current_time = time.strftime("%H:%M:%S", time.localtime())  # Lấy thời gian hiện tại dạng chuỗi
 
         file_exists = os.path.exists(filename)
-
         # Nếu file tồn tại nhưng trống, ghi header vào trước khi đọc
         if file_exists and os.stat(filename).st_size == 0:
             with open(filename, mode="w", newline="") as file:
@@ -153,11 +156,12 @@ class Student_Attendance:
                 df = pd.read_csv(filename)
                 if ((df["Student ID"] == self.student_id) & (df["Date"] == current_date)).any():
                     print(f"⚠️ Student {self.student_id} đã được ghi nhận hôm nay. Bỏ qua.")
+                    self.attended = True
                     return
             except pd.errors.EmptyDataError:
                 print("File CSV rỗng, sẽ ghi lại header.")
         student_image_path = self.save_student_image(student_id=self.student_id, image=frame)
-
+        
         # Mở file và ghi dữ liệu mới
         with open(filename, mode="a", newline="") as file:
             writer = csv.writer(file)
@@ -165,9 +169,8 @@ class Student_Attendance:
             # Nếu file mới tạo, ghi header
             if not file_exists:
                 writer.writerow(columns)
-
-            # Chỉ lưu nếu confidence > 80
-            if self.confidence > 80.:
+                
+            if self.confidence > 70.:
                 writer.writerow([self.student_id, current_date, current_time, student_image_path, self.confidence])    
                 print(f"Đã lưu thành công vào {filename}")
     
@@ -191,9 +194,9 @@ class Student_Attendance:
             ''' Anti-Spoofing section '''
             is_real = self.anti_spoof.predict(frame=frame)
             
-            # print(f"IS REAL : {is_real}")
+            print(f"IS REAL : {is_real} | CONFIDENCE : {self.anti_spoof.get_conf()}")
             
-            if is_real: 
+            if is_real:
                 current_number_of_frames_check_spoof += 1
                 print(current_number_of_frames_check_spoof)
                 cv2.putText(frame, "PLEASE KEEP STEADY", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3)
@@ -216,6 +219,9 @@ class Student_Attendance:
                 prev_time = curr_time
                 cv2.putText(frame, f'FPS: {int(fps)}', (480, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 3, cv2.LINE_AA)
 
+            if self.attended:
+                cv2.putText(frame, f'Student ID : {self.student_id}', (10, 430), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
+                cv2.putText(frame, f'SUCCESSFUL ATTENDANCE', (10, 470), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
                 
             
             cv2.imshow("Student Attendance", frame)
@@ -224,5 +230,5 @@ class Student_Attendance:
                 
                 
 if __name__ == "__main__":
-    student_attendance = Student_Attendance()
+    student_attendance = Student_Attendance(threshold=0.4)
     student_attendance.run(show_fps=True)
