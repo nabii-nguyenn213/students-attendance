@@ -20,8 +20,9 @@ def preprocess(img):
     return img
 
 # Open webcam
-cap = cv2.VideoCapture(0)
-
+cap = cv2.VideoCapture(1)
+default_brightness = cap.get(cv2.CAP_PROP_BRIGHTNESS)
+cap.set(cv2.CAP_PROP_BRIGHTNESS, default_brightness-20)
 while cap.isOpened():
     
     ret, frame = cap.read()
@@ -43,9 +44,9 @@ while cap.isOpened():
     output = session.run(None, {input_name: img})[0]  # Run inference
     
     # Get prediction
-    print("Conf : ", output[0][0])
-    is_real = output[0][0] > 0.45  # Threshold (adjust if needed)
-    
+    # print("Conf : ", output[0][0])
+    is_real = output[0][0] < 0.1  # Threshold (adjust if needed)
+    print(f"IS REAL : {is_real}  |  CONFIDENCE : {output[0][0]}")
     # Display result
     if is_real == True and phone_detected == False:
         text = "REAL"
