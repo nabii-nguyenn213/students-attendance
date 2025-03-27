@@ -43,8 +43,6 @@ while cap.isOpened():
     input_name = session.get_inputs()[0].name
     output = session.run(None, {input_name: img})[0]  # Run inference
     
-    # Get prediction
-    # print("Conf : ", output[0][0])
     is_real = output[0][0] < 0.1  # Threshold (adjust if needed)
     print(f"IS REAL : {is_real}  |  CONFIDENCE : {output[0][0]}")
     # Display result

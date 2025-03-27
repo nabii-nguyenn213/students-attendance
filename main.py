@@ -231,4 +231,4 @@ class Student_Attendance:
                 
 if __name__ == "__main__":
     student_attendance = Student_Attendance(threshold=0.4)
-    student_attendance.run(show_fps=True )
+    student_attendance.run(show_fps=False)
