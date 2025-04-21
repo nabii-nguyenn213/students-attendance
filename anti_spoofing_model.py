@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import onnxruntime as ort
 from ultralytics import YOLO
-from ultralytics.utils import LOGGER  # Import LOGGER
+from ultralytics.utils import LOGGER  
 
 LOGGER.setLevel(50)
 
@@ -10,16 +10,15 @@ LOGGER.setLevel(50)
 model_path = "models/public/anti-spoof-mn3/anti-spoof-mn3.onnx"
 session = ort.InferenceSession(model_path)
 
-yolo_model = YOLO("models/yolov8n.pt", verbose=False)  # Using YOLOv8 nano for speed
+yolo_model = YOLO("models/yolov8n.pt", verbose=False)  
 
 def preprocess(img):
     """Preprocess image for the anti-spoof model"""
-    img = cv2.resize(img, (128, 128))  # Resize to 80x80 (as required by anti-spoof-mn3)
+    img = cv2.resize(img, (128, 128))  
     img = np.transpose(img, (2, 0, 1)).astype(np.float32) / 255.0  # Normalize
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
+    img = np.expand_dims(img, axis=0) 
     return img
 
-# Open webcam
 cap = cv2.VideoCapture(1)
 default_brightness = cap.get(cv2.CAP_PROP_BRIGHTNESS)
 cap.set(cv2.CAP_PROP_BRIGHTNESS, default_brightness-20)
@@ -43,9 +42,8 @@ while cap.isOpened():
     input_name = session.get_inputs()[0].name
     output = session.run(None, {input_name: img})[0]  # Run inference
     
-    is_real = output[0][0] < 0.1  # Threshold (adjust if needed)
+    is_real = output[0][0] < 0.5  
     print(f"IS REAL : {is_real}  |  CONFIDENCE : {output[0][0]}")
-    # Display result
     if is_real == True and phone_detected == False:
         text = "REAL"
     else:

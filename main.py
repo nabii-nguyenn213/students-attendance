@@ -25,9 +25,6 @@ class Anti_Spoofing:
         self.session = ort.InferenceSession(model_path+"/public/anti-spoof-mn3/anti-spoof-mn3.onnx")
 
     def frame_processing(self, frame):
-        '''
-        resize the frame to fit the anti-spoof model.
-        '''
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.resize(frame, (128, 128))
         frame = np.transpose(frame, (2, 0, 1)).astype(np.float32)/255.0
@@ -46,10 +43,10 @@ class Anti_Spoofing:
         
         img = self.frame_processing(frame)
         input_name = self.session.get_inputs()[0].name
-        output = self.session.run(None, {input_name: img})[0]  # Run inference
+        output = self.session.run(None, {input_name: img})[0]  
         
         self.conf = output[0][0]
-        is_real = self.conf > self.threshold  # Threshold (adjust if needed)
+        is_real = self.conf > self.threshold 
         
         # Display result
         if is_real == True and phone_detected == False:
@@ -117,42 +114,35 @@ class Student_Attendance:
         # Get current date in YYYY-MM-DD format
         current_date = datetime.now().strftime("%Y-%m-%d")
 
-        # Define folder paths
         date_folder = os.path.join(base_folder, current_date)
         student_folder = os.path.join(date_folder, str(student_id))
 
-        # Create necessary directories if they don't exist
         os.makedirs(student_folder, exist_ok=True)
 
-        # Define image filename (timestamp to prevent overwriting)
         timestamp = datetime.now().strftime("%H-%M-%S")
         image_path = os.path.join(student_folder, f"{timestamp}.jpg")
 
-        # Save the image
         cv2.imwrite(image_path, image)
 
         # print(f"Image saved at: {image_path}")
         
-        return image_path  # Return the image path for logging
+        return image_path
     
     def save_attendance(self, frame, filename="students.csv"):
         columns = ["Student ID", "Date", "Time", "Image_Path", "Confidence"]
         current_date = datetime.now().strftime("%Y-%m-%d")
-        current_time = time.strftime("%H:%M:%S", time.localtime())  # Lấy thời gian hiện tại dạng chuỗi
-
+        current_time = time.strftime("%H:%M:%S", time.localtime()) 
         file_exists = os.path.exists(filename)
-        # Nếu file tồn tại nhưng trống, ghi header vào trước khi đọc
         if file_exists and os.stat(filename).st_size == 0:
             with open(filename, mode="w", newline="") as file:
                 writer = csv.writer(file)
-                writer.writerow(columns)  # Viết header
+                writer.writerow(columns) 
 
-        # Kiểm tra Student ID có trong file không (tránh lỗi EmptyDataError)
         if file_exists:
             try:
                 df = pd.read_csv(filename)
                 if ((df["Student ID"] == self.student_id) & (df["Date"] == current_date)).any():
-                    print(f"⚠️ Student {self.student_id} đã được ghi nhận hôm nay. Bỏ qua.")
+                    print(f"Student {self.student_id} đã được ghi nhận hôm nay. Bỏ qua.")
                     self.attended = True
                     return
             except pd.errors.EmptyDataError:
@@ -162,7 +152,6 @@ class Student_Attendance:
         with open(filename, mode="a", newline="") as file:
             writer = csv.writer(file)
 
-            # Nếu file mới tạo, ghi header
             if not file_exists:
                 writer.writerow(columns)
                 
