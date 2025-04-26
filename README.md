@@ -59,6 +59,13 @@
 
 ### Anti-Spoofing Model
 
+##### YOLOv8n
+
+- The `YOLOv8` is added just for one reason: *phone detected*. In short, it will detect if there are any phones in the frame. If there is any phone in the frame, the model will classify it a spoof. 
+- The reason we were added this into this project is to **speed up the model**, if YOLO detects any phones in the frame, the model will immediately mark that a spoof without running `anti-spoof-mn3`.
+- In short, during attendance, no phone is allowed in the frame.
+
+##### Anti-Spoof-mn3
 - Due to many limited condition (hardware, dataset, ...), many model have been tested to suitable for this limitation. And we decide to pick [anti-spoof-mn3 model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/anti-spoof-mn3) because of the following reasons :
     - **Pros** : 
         - `Anti-Spoof-mn3` is a small, light model and trained to predict whether or not a spoof RGB image given to the input. 
