@@ -46,5 +46,4 @@
 
 ### Demo
 
-![Demo](output.gif)
-
+<img src="demo.gif" width="80%">
