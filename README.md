@@ -61,7 +61,7 @@
 
 ##### YOLOv8n
 
-- The `YOLOv8` is added just for one reason: *phone detected*. In short, it will detect if there are any phones in the frame. If there is any phone in the frame, the model will classify it a spoof. 
+- The `YOLOv8` is added just for one reason: *phone detected*. It will detect if there are any phones in the frame. If there is any phone in the frame, the model will classify it a spoof. 
 - The reason we were added this into this project is to **speed up the model**, if YOLO detects any phones in the frame, the model will immediately mark that a spoof without running `anti-spoof-mn3`.
 - In short, during attendance, no phone is allowed in the frame.
 
