@@ -57,7 +57,7 @@
 
 ### Anti-Spoofing Model
 
-- Due to many limited condition (hardware, dataset, ...), many model have been tested to suitable for this limitation. We picked ![anti-spoof-mn3 model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/anti-spoof-mn3).
+- Due to many limited condition (hardware, dataset, ...), many model have been tested to suitable for this limitation. We picked [anti-spoof-mn3 model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/anti-spoof-mn3).
 
 - **Pros** : 
 
