@@ -54,6 +54,8 @@
 
 ### Face Classification Model
 
+- We use `facenet` to extract feature of the student's faces, compress it into embeddings, which is used to train an `SVM` to classiy the student's faces.
+- You can train a `FaceNet` model; however, in this project, just a few student's faces are trained, so a simple `SVM` is enough to achieve `>90% accuracy`.
 
 ### Anti-Spoofing Model
 
@@ -73,5 +75,5 @@
     - However, the accuracy is not good if we compare to the big model, and may struggle with new types of spoofing it wasn’t trained on.
     - This project used `anti-spoof-mn3` because of the following limitation : 
         - Time : This is final project in one of my subject at school. 
-        - Hardware : If you have Depth Camera or 3D Camera, this model is not recommended. There are much more others well-accuracy model (e.g, 3D CNNs). 
+        - Hardware : If you have Depth Camera or 3D Camera, this model is not recommended. There are much more others well-accuracy models (e.g, 3D CNNs). 
         - Dataset : We are not able to collect dataset in a short time to fine-tuned this model. 
