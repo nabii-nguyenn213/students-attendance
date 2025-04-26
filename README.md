@@ -43,3 +43,8 @@
 ```
 
 > `train/` , `test/` and `val/` folders will be automatically generated when running `Augmentation_dataset.py` file.
+
+### Demo
+
+![Demo](DAP391m project preview - Made with Clipchamp.mp4)
+
