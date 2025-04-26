@@ -1,7 +1,5 @@
 # Student Attendance Project
 
-## Dataset
-
 ### Dataset Preparation : 
 - Prepare **at least 50 images** for each student's faces in different perspective. Save in folders which are named by their *Student_ID* in `student_attendance/dataset/Student_ID`.
 - Run `Augmentation_dataset.py` to make more dataset of student's faces if needed (recommendation if dataset is limited). The `facenet_dataset` folder will automatically generate, which is used to extract feature of their faces using *facenet*. The feature embedding is passed in the `SVM` to train to classify students.
