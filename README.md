@@ -46,4 +46,4 @@
 
 ### Demo
 
-<img src="demo.gif" width="80%">
+<img src="demo.gif" width="100%">
