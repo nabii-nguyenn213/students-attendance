@@ -46,5 +46,5 @@
 
 ### Demo
 
-![Demo](DAP391m project preview - Made with Clipchamp.mp4)
+![Demo](output.gif)
 
