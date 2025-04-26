@@ -57,7 +57,21 @@
 
 ### Anti-Spoofing Model
 
-- Due to many limited condition (hardware, dataset, ...), many model have been tested to suitable for this limitation. We picked [anti-spoof-mn3 model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/anti-spoof-mn3).
+- Due to many limited condition (hardware, dataset, ...), many model have been tested to suitable for this limitation. And we decide to pick [anti-spoof-mn3 model](https://github.com/openvinotoolkit/open_model_zoo/tree/master/models/public/anti-spoof-mn3) because of the following reasons :
+    - **Pros** : 
+        - `Anti-Spoof-mn3` is a small, light model and trained to predict whether or not a spoof RGB image given to the input. 
+        - It's a best pre-trained model we tested so far. 
+        - The model was built based on [MobileNetV3](https://arxiv.org/abs/1905.02244), trained on [CelebA-Spoof dataset](https://arxiv.org/abs/2007.12342). So that the model performs fast and high accuracy.
 
-- **Pros** : 
+    - **Cons** : 
+        - Because we've not fine-tuned the model (limited time and dataset), the model is very sensitive of light. 
+        - Not as strong as large models (like EfficientNet, ResNet) in detecting very advanced attacks (hyper-realistic masks, digital manipulations).
+        - Focuses on speed, so feature richness is limited compared to larger CNNs.
 
+- **Summary** : 
+    - This model is recommended if we use to run in real-time (even on CPU) because of its fast inference, lightweight.
+    - However, the accuracy is not good if we compare to the big model, and may struggle with new types of spoofing it wasn’t trained on.
+    - This project used `anti-spoof-mn3` because of the following limitation : 
+        - Time : This is final project in one of my subject at school. 
+        - Hardware : If you have Depth Camera or 3D Camera, this model is not recommended. There are much more others well-accuracy model (e.g, 3D CNNs). 
+        - Dataset : We are not able to collect dataset in a short time to fine-tuned this model. 
